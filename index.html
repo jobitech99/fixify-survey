@@ -461,11 +461,9 @@
 
 <script>
   // ── Google Sheet sync ────────────────────────────────────────────
-  // Paste the "Web app URL" you get from deploying the Apps Script
-  // (see the setup guide) between the quotes below. Leave it as
-  // "PASTE_YOUR_SCRIPT_URL_HERE" to keep the survey working with
-  // local CSV download only, with no sync attempt.
-  const GOOGLE_SCRIPT_URL = "PASTE_YOUR_SCRIPT_URL_HERE";
+  // This is wired to your Apps Script Web app deployment. If you ever
+  // redeploy and get a new URL, replace it between the quotes below.
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYFCZ-iPXXLSzb4NKTeaCicQa10cQNBFalhRKEz8UnkNNsPXslHL8BYTbL_CiuPPSU/exec";
   // ─────────────────────────────────────────────────────────────────
 
   const totalSteps = 10;
