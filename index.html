@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fixify — Field Survey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EFE9DA;
+    --paper-alt:#E4DCC5;
+    --ink:#221F1A;
+    --ink-soft:#5B5546;
+    --denim:#32465E;
+    --denim-deep:#22303F;
+    --rust:#B5601D;
+    --rust-deep:#94500F;
+    --moss:#4B7359;
+    --line:#C7BC9C;
+    --white:#FBF9F3;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(34,31,26,0.06) 1px, transparent 0);
+    background-size:22px 22px;
+    font-family:'Work Sans', sans-serif;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    padding:32px 16px 60px;
+  }
+  .ticket{
+    width:100%;
+    max-width:640px;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:6px;
+    box-shadow:0 1px 0 var(--line), 0 18px 40px -24px rgba(34,31,26,0.35);
+    overflow:hidden;
+  }
+  .ticket-head{
+    background:var(--denim);
+    color:var(--white);
+    padding:22px 26px 18px;
+    position:relative;
+  }
+  .ticket-head .row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .brand svg{width:26px;height:26px;flex-shrink:0;}
+  .brand-name{
+    font-family:'Roboto Slab', serif;
+    font-weight:700;
+    font-size:1.25rem;
+    letter-spacing:0.01em;
+  }
+  .ticket-no{
+    text-align:right;
+    font-size:0.78rem;
+    color:#C7D3DD;
+    line-height:1.5;
+  }
+  .ticket-no strong{color:var(--white); font-weight:600;}
+  .ticket-sub{
+    margin-top:14px;
+    font-size:0.95rem;
+    color:#D9E1E8;
+    max-width:46ch;
+    line-height:1.5;
+  }
+  .perforation{
+    height:0;
+    border-top:2px dashed var(--line);
+    margin:0 26px;
+    position:relative;
+    top:1px;
+  }
+  .ticket-body{
+    padding:28px 26px 26px;
+    background:var(--paper-alt);
+    min-height:340px;
+  }
+  .progress-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:22px;
+  }
+  .progress-track{
+    flex:1;
+    height:6px;
+    background:#D6CBA9;
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--rust);
+    border-radius:3px;
+    transition:width .25s ease;
+    width:10%;
+  }
+  .progress-label{
+    font-size:0.75rem;
+    color:var(--ink-soft);
+    white-space:nowrap;
+    font-variant-numeric:tabular-nums;
+  }
+  .step{display:none;}
+  .step.active{display:block; animation:fadeIn .3s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+  .step h2{
+    font-family:'Roboto Slab', serif;
+    font-size:1.15rem;
+    font-weight:700;
+    margin:0 0 6px;
+    line-height:1.35;
+  }
+  .step p.hint{
+    margin:0 0 18px;
+    font-size:0.88rem;
+    color:var(--ink-soft);
+    line-height:1.5;
+  }
+  .pitch-box{
+    background:var(--white);
+    border-left:3px solid var(--rust);
+    padding:14px 16px;
+    border-radius:3px;
+    font-size:0.92rem;
+    line-height:1.55;
+    margin-bottom:18px;
+  }
+  fieldset{border:none; margin:0; padding:0;}
+  .options{display:flex; flex-direction:column; gap:8px;}
+  .options label{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:11px 14px;
+    font-size:0.92rem;
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .options label:hover{border-color:var(--denim);}
+  .options input{accent-color:var(--rust); width:16px; height:16px; flex-shrink:0;}
+  .options label.checked{border-color:var(--rust); background:#FBF3E8;}
+  .scale-row{display:flex; gap:8px; margin-bottom:6px;}
+  .scale-row label{
+    flex:1;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+    padding:10px 4px;
+  }
+  .scale-num{
+    font-family:'Roboto Slab', serif;
+    font-weight:700;
+    font-size:1rem;
+  }
+  .scale-caption{
+    display:flex;
+    justify-content:space-between;
+    font-size:0.72rem;
+    color:var(--ink-soft);
+    margin-bottom:16px;
+  }
+  textarea, input[type="text"], input[type="email"]{
+    width:100%;
+    font-family:'Work Sans', sans-serif;
+    font-size:0.92rem;
+    padding:11px 13px;
+    border:1px solid var(--line);
+    border-radius:5px;
+    background:var(--white);
+    color:var(--ink);
+    resize:vertical;
+  }
+  textarea:focus, input:focus, label:focus-within{
+    outline:2px solid var(--denim);
+    outline-offset:1px;
+  }
+  .field-row{display:flex; gap:12px; margin-bottom:14px;}
+  .field-row > div{flex:1;}
+  .field-label{font-size:0.82rem; color:var(--ink-soft); margin-bottom:6px; display:block;}
+  .nav-row{
+    display:flex;
+    justify-content:space-between;
+    margin-top:26px;
+    gap:10px;
+  }
+  button{
+    font-family:'Work Sans', sans-serif;
+    font-weight:600;
+    font-size:0.9rem;
+    padding:11px 20px;
+    border-radius:5px;
+    cursor:pointer;
+    border:1.5px solid transparent;
+    transition:background .15s ease, border-color .15s ease, transform .05s ease;
+  }
+  button:active{transform:translateY(1px);}
+  .btn-ghost{
+    background:transparent;
+    border-color:var(--denim);
+    color:var(--denim);
+  }
+  .btn-ghost:hover{background:rgba(50,70,94,0.08);}
+  .btn-ghost:disabled{opacity:0.35; cursor:default;}
+  .btn-primary{
+    background:var(--denim);
+    color:var(--white);
+    margin-left:auto;
+  }
+  .btn-primary:hover{background:var(--denim-deep);}
+  .btn-submit{
+    background:var(--rust);
+    color:var(--white);
+    margin-left:auto;
+  }
+  .btn-submit:hover{background:var(--rust-deep);}
+  .stub-note{
+    margin-top:16px;
+    font-size:0.76rem;
+    color:var(--ink-soft);
+    text-align:center;
+  }
+  /* Summary screen */
+  .summary-stamp{
+    display:inline-block;
+    border:2px solid var(--moss);
+    color:var(--moss);
+    font-family:'Roboto Slab', serif;
+    font-weight:700;
+    font-size:0.78rem;
+    letter-spacing:0.06em;
+    padding:4px 10px;
+    border-radius:3px;
+    transform:rotate(-2deg);
+    margin-bottom:14px;
+  }
+  .summary h2{margin-top:0;}
+  .summary-list{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:16px 18px;
+    font-size:0.86rem;
+    line-height:1.7;
+    max-height:260px;
+    overflow-y:auto;
+    margin-bottom:18px;
+  }
+  .summary-list dt{color:var(--ink-soft); font-weight:600; margin-top:8px;}
+  .summary-list dd{margin:0 0 4px;}
+</style>
+</head>
+<body>
+
+<div class="ticket">
+  <div class="ticket-head">
+    <div class="row">
+      <div class="brand">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20.5 3.5a4.95 4.95 0 0 0-6.8 6.8L4 20l0 0 0 0-0.5 3.5 3.5-0.5 9.7-9.7a4.95 4.95 0 0 0 6.8-6.8l-3.5 3.5-2.6-0.9-0.9-2.6 3.5-3.5z" stroke="#FBF9F3" stroke-width="1.4" stroke-linejoin="round"/>
+        </svg>
+        <span class="brand-name">Fixify</span>
+      </div>
+      <div class="ticket-no">Field Survey<br><strong id="ticketNo">FX-00000</strong></div>
+    </div>
+    <p class="ticket-sub">A quick read on whether Fixify is worth building for real — for people who've hired a barber, electrician, plumber, or tailor before.</p>
+  </div>
+  <div class="perforation"></div>
+
+  <div class="ticket-body">
+    <form id="surveyForm">
+
+      <div class="progress-row">
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-label" id="progressLabel">Step 1 of 10</div>
+      </div>
+
+      <!-- Step 1: Screener -->
+      <div class="step active" data-step="1">
+        <h2>How often do you hire artisans?</h2>
+        <p class="hint">Think barbers, electricians, plumbers, tailors, mechanics — anyone you call in to fix or handle something.</p>
+        <fieldset class="options" data-name="frequency">
+          <label><input type="radio" name="frequency" value="Never"> Never — I handle things myself or don't need to</label>
+          <label><input type="radio" name="frequency" value="Once or twice a year"> Once or twice a year</label>
+          <label><input type="radio" name="frequency" value="A few times a year"> A few times a year</label>
+          <label><input type="radio" name="frequency" value="Monthly or more"> Monthly or more</label>
+        </fieldset>
+      </div>
+
+      <!-- Step 2: How they find artisans -->
+      <div class="step" data-step="2">
+        <h2>How do you usually find one?</h2>
+        <p class="hint">Pick as many as apply.</p>
+        <fieldset class="options" data-name="findMethod" data-multi="true">
+          <label><input type="checkbox" name="findMethod" value="Word of mouth / referral"> Word of mouth or referral</label>
+          <label><input type="checkbox" name="findMethod" value="Social media"> Social media</label>
+          <label><input type="checkbox" name="findMethod" value="Local market / stand"> Local market or roadside stand</label>
+          <label><input type="checkbox" name="findMethod" value="My regular guy"> I already have a regular person</label>
+          <label><input type="checkbox" name="findMethod" value="Other"> Other</label>
+        </fieldset>
+      </div>
+
+      <!-- Step 3: Pain point -->
+      <div class="step" data-step="3">
+        <h2>What frustrates you most about hiring artisans?</h2>
+        <p class="hint">Pick the single biggest one.</p>
+        <fieldset class="options" data-name="painPoint">
+          <label><input type="radio" name="painPoint" value="No-shows / unreliable"> No-shows or unreliable timing</label>
+          <label><input type="radio" name="painPoint" value="Can't verify skill or trust"> Can't verify their skill or trustworthiness upfront</label>
+          <label><input type="radio" name="painPoint" value="Price disputes"> Price disputes or being overcharged</label>
+          <label><input type="radio" name="painPoint" value="Poor quality work"> Poor quality of work</label>
+          <label><input type="radio" name="painPoint" value="Hard to find someone nearby"> Hard to find someone nearby when I need one</label>
+          <label><input type="radio" name="painPoint" value="Other"> Other</label>
+        </fieldset>
+      </div>
+
+      <!-- Step 4: Trust importance -->
+      <div class="step" data-step="4">
+        <h2>How much does verification matter to you?</h2>
+        <p class="hint">Before letting someone into your home or business, how important is it that they're ID-verified with a documented track record?</p>
+        <div class="scale-row" data-name="trustImportance">
+          <label><input type="radio" name="trustImportance" value="1"><span class="scale-num">1</span></label>
+          <label><input type="radio" name="trustImportance" value="2"><span class="scale-num">2</span></label>
+          <label><input type="radio" name="trustImportance" value="3"><span class="scale-num">3</span></label>
+          <label><input type="radio" name="trustImportance" value="4"><span class="scale-num">4</span></label>
+          <label><input type="radio" name="trustImportance" value="5"><span class="scale-num">5</span></label>
+        </div>
+        <div class="scale-caption"><span>Doesn't matter</span><span>Essential</span></div>
+      </div>
+
+      <!-- Step 5: Concept exposure -->
+      <div class="step" data-step="5">
+        <h2>Here's the idea</h2>
+        <div class="pitch-box">Fixify connects you to verified artisans in your city — ID-checked, and ranked by real customer satisfaction from Beginner up to Legend — so you know who you're letting in before they arrive.</div>
+        <p class="hint">What's your honest first reaction?</p>
+        <fieldset class="options" data-name="firstReaction">
+          <label><input type="radio" name="firstReaction" value="I'd want this immediately"> I'd want this immediately</label>
+          <label><input type="radio" name="firstReaction" value="Sounds useful, would try it"> Sounds useful, I'd try it</label>
+          <label><input type="radio" name="firstReaction" value="Not sure it changes anything for me"> Not sure it changes anything for me</label>
+          <label><input type="radio" name="firstReaction" value="Not interested"> Not interested</label>
+        </fieldset>
+      </div>
+
+      <!-- Step 6: Likelihood to use + Sean Ellis test -->
+      <div class="step" data-step="6">
+        <h2>If Fixify launched in your city today...</h2>
+        <p class="hint">How likely would you be to try it for your next job?</p>
+        <div class="scale-row" data-name="likelihood">
+          <label><input type="radio" name="likelihood" value="1"><span class="scale-num">1</span></label>
+          <label><input type="radio" name="likelihood" value="2"><span class="scale-num">2</span></label>
+          <label><input type="radio" name="likelihood" value="3"><span class="scale-num">3</span></label>
+          <label><input type="radio" name="likelihood" value="4"><span class="scale-num">4</span></label>
+          <label><input type="radio" name="likelihood" value="5"><span class="scale-num">5</span></label>
+        </div>
+        <div class="scale-caption"><span>Very unlikely</span><span>Very likely</span></div>
+        <p class="hint" style="margin-top:18px;">And if Fixify simply never existed — how would you feel?</p>
+        <fieldset class="options" data-name="disappointment">
+          <label><input type="radio" name="disappointment" value="Very disappointed"> Very disappointed</label>
+          <label><input type="radio" name="disappointment" value="Somewhat disappointed"> Somewhat disappointed</label>
+          <label><input type="radio" name="disappointment" value="Not disappointed"> Not disappointed — wouldn't miss it</label>
+        </fieldset>
+      </div>
+
+      <!-- Step 7: Feature priority -->
+      <div class="step" data-step="7">
+        <h2>What would matter most to you?</h2>
+        <p class="hint">Pick your top pick from the list.</p>
+        <fieldset class="options" data-name="topFeature">
+          <label><input type="radio" name="topFeature" value="Verified ID & background info"> Verified ID and background info</label>
+          <label><input type="radio" name="topFeature" value="Ratings from real customers"> Ratings and rank from real customers</label>
+          <label><input type="radio" name="topFeature" value="Fast response time"> Fast response time</label>
+          <label><input type="radio" name="topFeature" value="Transparent pricing upfront"> Transparent pricing upfront</label>
+          <label><input type="radio" name="topFeature" value="In-app chat & booking"> In-app chat and booking</label>
+          <label><input type="radio" name="topFeature" value="Payment protection / escrow"> Payment protection or escrow</label>
+        </fieldset>
+      </div>
+
+      <!-- Step 8: Willingness to pay -->
+      <div class="step" data-step="8">
+        <h2>Would you pay a small fee for that peace of mind?</h2>
+        <p class="hint">A small service or booking fee, on top of what you'd pay the artisan directly.</p>
+        <fieldset class="options" data-name="willingnessToPay">
+          <label><input type="radio" name="willingnessToPay" value="Yes, definitely"> Yes, definitely</label>
+          <label><input type="radio" name="willingnessToPay" value="Maybe, depends on the amount"> Maybe, depends on the amount</label>
+          <label><input type="radio" name="willingnessToPay" value="No, I'd prefer it free"> No, I'd prefer it free</label>
+          <label><input type="radio" name="willingnessToPay" value="Not sure"> Not sure</label>
+        </fieldset>
+        <div style="margin-top:16px;">
+          <label class="field-label" for="fairAmount">If yes — what would feel fair for a standard job? (optional)</label>
+          <input type="text" id="fairAmount" name="fairAmount" placeholder="e.g. ₦500 flat fee">
+        </div>
+      </div>
+
+      <!-- Step 9: Open-ended + demographics -->
+      <div class="step" data-step="9">
+        <h2>Last couple of things</h2>
+        <div class="field-row">
+          <div>
+            <label class="field-label" for="city">City</label>
+            <input type="text" id="city" name="city" placeholder="e.g. Port Harcourt">
+          </div>
+          <div>
+            <label class="field-label" for="ageBracket">Age bracket</label>
+            <input type="text" id="ageBracket" name="ageBracket" placeholder="e.g. 25–34">
+          </div>
+        </div>
+        <label class="field-label" for="hesitation">What would stop you from trying Fixify, or make you hesitate?</label>
+        <textarea id="hesitation" name="hesitation" rows="3" placeholder="Be honest — this is the useful part."></textarea>
+      </div>
+
+      <!-- Step 10: Waitlist -->
+      <div class="step" data-step="10">
+        <h2>Want early access?</h2>
+        <p class="hint">Leave your email if you'd like to be first to try Fixify when it launches. Totally optional.</p>
+        <input type="email" id="email" name="email" placeholder="you@example.com">
+      </div>
+
+      <div class="nav-row">
+        <button type="button" class="btn-ghost" id="backBtn" disabled>Back</button>
+        <button type="button" class="btn-primary" id="nextBtn">Next</button>
+        <button type="submit" class="btn-submit" id="submitBtn" style="display:none;">Submit ticket</button>
+      </div>
+      <p class="stub-note">10 short sections · roughly 3–4 minutes</p>
+    </form>
+
+    <div class="step summary" data-step="done" style="display:none;">
+      <span class="summary-stamp">Ticket closed</span>
+      <h2>Thanks — that's genuinely useful.</h2>
+      <p class="hint" id="syncStatus">Here's what got recorded on this ticket. Download it if you're collecting these yourself.</p>
+      <dl class="summary-list" id="summaryList"></dl>
+      <div class="nav-row">
+        <button type="button" class="btn-ghost" id="restartBtn">Start another</button>
+        <button type="button" class="btn-submit" id="downloadBtn">Download my responses (CSV)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Google Sheet sync ────────────────────────────────────────────
+  // Paste the "Web app URL" you get from deploying the Apps Script
+  // (see the setup guide) between the quotes below. Leave it as
+  // "PASTE_YOUR_SCRIPT_URL_HERE" to keep the survey working with
+  // local CSV download only, with no sync attempt.
+  const GOOGLE_SCRIPT_URL = "PASTE_YOUR_SCRIPT_URL_HERE";
+  // ─────────────────────────────────────────────────────────────────
+
+  const totalSteps = 10;
+  let current = 1;
+  const form = document.getElementById('surveyForm');
+  const steps = () => Array.from(form.querySelectorAll('.step'));
+  const progressFill = document.getElementById('progressFill');
+  const progressLabel = document.getElementById('progressLabel');
+  const backBtn = document.getElementById('backBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const submitBtn = document.getElementById('submitBtn');
+
+  document.getElementById('ticketNo').textContent =
+    'FX-' + String(Math.floor(Math.random() * 90000) + 10000);
+
+  function showStep(n){
+    steps().forEach(s => s.classList.toggle('active', Number(s.dataset.step) === n));
+    progressFill.style.width = (n / totalSteps * 100) + '%';
+    progressLabel.textContent = 'Step ' + n + ' of ' + totalSteps;
+    backBtn.disabled = n === 1;
+    nextBtn.style.display = n === totalSteps ? 'none' : 'inline-block';
+    submitBtn.style.display = n === totalSteps ? 'inline-block' : 'none';
+  }
+
+  function highlightChecked(stepEl){
+    stepEl.querySelectorAll('.options label').forEach(label => {
+      const input = label.querySelector('input');
+      label.classList.toggle('checked', input && input.checked);
+    });
+  }
+
+  form.addEventListener('change', (e) => {
+    const label = e.target.closest('label');
+    if (label && label.parentElement.classList.contains('options')) {
+      const stepEl = e.target.closest('.step');
+      highlightChecked(stepEl);
+    }
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if (current < totalSteps) { current++; showStep(current); window.scrollTo({top:0, behavior:'smooth'}); }
+  });
+  backBtn.addEventListener('click', () => {
+    if (current > 1) { current--; showStep(current); window.scrollTo({top:0, behavior:'smooth'}); }
+  });
+
+  const fieldMeta = [
+    ['frequency', 'How often do you hire artisans?'],
+    ['findMethod', 'How do you usually find one?'],
+    ['painPoint', 'Biggest frustration'],
+    ['trustImportance', 'Importance of verification (1–5)'],
+    ['firstReaction', 'First reaction to Fixify'],
+    ['likelihood', 'Likelihood to try it (1–5)'],
+    ['disappointment', 'Feeling if Fixify never existed'],
+    ['topFeature', 'Top priority feature'],
+    ['willingnessToPay', 'Willing to pay a small fee?'],
+    ['fairAmount', 'Fair fee amount'],
+    ['city', 'City'],
+    ['ageBracket', 'Age bracket'],
+    ['hesitation', 'What would cause hesitation'],
+    ['email', 'Email for early access']
+  ];
+
+  let lastData = {};
+
+  function renderSummary(data){
+    const list = document.getElementById('summaryList');
+    list.innerHTML = '';
+    fieldMeta.forEach(([name, label]) => {
+      if (!data[name]) return;
+      const dt = document.createElement('dt'); dt.textContent = label;
+      const dd = document.createElement('dd'); dd.textContent = data[name];
+      list.appendChild(dt); list.appendChild(dd);
+    });
+    form.style.display = 'none';
+    document.querySelector('.summary').style.display = 'block';
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const data = {};
+    const fd = new FormData(form);
+    fieldMeta.forEach(([name]) => {
+      const values = fd.getAll(name);
+      data[name] = values.length > 1 ? values.join('; ') : (values[0] || '');
+    });
+    data.submittedAt = new Date().toISOString();
+    lastData = data;
+
+    const statusEl = document.getElementById('syncStatus');
+    const scriptConfigured = GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== 'PASTE_YOUR_SCRIPT_URL_HERE';
+
+    if (!scriptConfigured) {
+      statusEl.textContent = "Here's what got recorded on this ticket. Google Sheet sync isn't connected yet — download the CSV below to keep this response.";
+      renderSummary(data);
+      return;
+    }
+
+    statusEl.textContent = 'Sending to your Google Sheet…';
+    renderSummary(data);
+
+    const body = new URLSearchParams(data);
+    fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body })
+      .then(() => {
+        // no-cors responses are opaque, so this only confirms the
+        // request went out without a network error, not that the
+        // sheet accepted it — check the sheet itself to be sure.
+        statusEl.textContent = 'Sent to your Google Sheet. (Download the CSV too if you want a local backup.)';
+      })
+      .catch(() => {
+        statusEl.textContent = "Couldn't reach the Google Sheet (offline or the link is wrong) — download the CSV below so this response isn't lost.";
+      });
+  });
+
+  document.getElementById('restartBtn').addEventListener('click', () => {
+    form.reset();
+    form.querySelectorAll('.options label').forEach(l => l.classList.remove('checked'));
+    form.style.display = 'block';
+    document.querySelector('.summary').style.display = 'none';
+    current = 1;
+    showStep(current);
+    document.getElementById('ticketNo').textContent =
+      'FX-' + String(Math.floor(Math.random() * 90000) + 10000);
+  });
+
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    const headers = fieldMeta.map(([, label]) => label);
+    const values = fieldMeta.map(([name]) => '"' + String(lastData[name] || '').replace(/"/g,'""') + '"');
+    const csv = headers.join(',') + '\n' + values.join(',');
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'fixify-survey-response.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  showStep(current);
+</script>
+
+</body>
+</html>
