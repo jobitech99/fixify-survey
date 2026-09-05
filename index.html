@@ -304,7 +304,7 @@
 
       <div class="progress-row">
         <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-        <div class="progress-label" id="progressLabel">Step 1 of 10</div>
+        <div class="progress-label" id="progressLabel">Step 1 of 11</div>
       </div>
 
       <!-- Step 1: Screener -->
@@ -480,8 +480,20 @@
         <textarea id="hesitation" name="hesitation" rows="3" placeholder="Be honest — this is the useful part."></textarea>
       </div>
 
-      <!-- Step 10: Waitlist -->
+      <!-- Step 10: Artisan supply-side check -->
       <div class="step" data-step="10">
+        <h2>One more thing — are you a provider too?</h2>
+        <p class="hint">Are you also an artisan or service provider yourself (barber, electrician, tailor, mechanic, etc.)?</p>
+        <fieldset class="options" data-name="artisanSignup">
+          <label><input type="radio" name="artisanSignup" value="Not an artisan"> No, I'm just looking to hire people</label>
+          <label><input type="radio" name="artisanSignup" value="Yes, would sign up"> Yes, and I'd sign up to be listed on Fixify</label>
+          <label><input type="radio" name="artisanSignup" value="Yes, unsure"> Yes, but I'm unsure about signing up</label>
+          <label><input type="radio" name="artisanSignup" value="Yes, would not sign up"> Yes, but I wouldn't sign up as a provider</label>
+        </fieldset>
+      </div>
+
+      <!-- Step 11: Waitlist -->
+      <div class="step" data-step="11">
         <h2>Want early access?</h2>
         <p class="hint">Leave your email if you'd like to be first to try Fixify when it launches. Totally optional.</p>
         <input type="email" id="email" name="email" placeholder="you@example.com">
@@ -514,7 +526,7 @@
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYFCZ-iPXXLSzb4NKTeaCicQa10cQNBFalhRKEz8UnkNNsPXslHL8BYTbL_CiuPPSU/exec";
   // ─────────────────────────────────────────────────────────────────
 
-  const totalSteps = 10;
+  const totalSteps = 11;
   let current = 1;
   const form = document.getElementById('surveyForm');
   const steps = () => Array.from(form.querySelectorAll('.step'));
@@ -572,6 +584,7 @@
     ['city', 'City'],
     ['ageBracket', 'Age bracket'],
     ['hesitation', 'What would cause hesitation'],
+    ['artisanSignup', 'Also an artisan — would they sign up?'],
     ['email', 'Email for early access']
   ];
 
