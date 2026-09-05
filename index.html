@@ -500,9 +500,8 @@
       <h2>Thanks — that's genuinely useful.</h2>
       <p class="hint" id="syncStatus">Here's what got recorded on this ticket. Download it if you're collecting these yourself.</p>
       <dl class="summary-list" id="summaryList"></dl>
-      <div class="nav-row">
+      <div class="nav-row" style="justify-content:center;">
         <button type="button" class="btn-ghost" id="restartBtn">Start another</button>
-        <button type="button" class="btn-submit" id="downloadBtn">Download my responses (CSV)</button>
       </div>
     </div>
   </div>
@@ -606,7 +605,7 @@
     const scriptConfigured = GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== 'PASTE_YOUR_SCRIPT_URL_HERE';
 
     if (!scriptConfigured) {
-      statusEl.textContent = "Here's what got recorded on this ticket. Google Sheet sync isn't connected yet — download the CSV below to keep this response.";
+      statusEl.textContent = "Here's what got recorded on this ticket. Google Sheet sync isn't connected yet, so this response wasn't saved anywhere.";
       renderSummary(data);
       return;
     }
@@ -620,10 +619,10 @@
         // no-cors responses are opaque, so this only confirms the
         // request went out without a network error, not that the
         // sheet accepted it — check the sheet itself to be sure.
-        statusEl.textContent = 'Sent to your Google Sheet. (Download the CSV too if you want a local backup.)';
+        statusEl.textContent = 'Sent to your Google Sheet.';
       })
       .catch(() => {
-        statusEl.textContent = "Couldn't reach the Google Sheet (offline or the link is wrong) — download the CSV below so this response isn't lost.";
+        statusEl.textContent = "Couldn't reach the Google Sheet (offline or the link is wrong) — this response may not have been saved.";
       });
   });
 
@@ -636,19 +635,6 @@
     showStep(current);
     document.getElementById('ticketNo').textContent =
       'FX-' + String(Math.floor(Math.random() * 90000) + 10000);
-  });
-
-  document.getElementById('downloadBtn').addEventListener('click', () => {
-    const headers = fieldMeta.map(([, label]) => label);
-    const values = fieldMeta.map(([name]) => '"' + String(lastData[name] || '').replace(/"/g,'""') + '"');
-    const csv = headers.join(',') + '\n' + values.join(',');
-    const blob = new Blob([csv], {type:'text/csv'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'fixify-survey-response.csv';
-    a.click();
-    URL.revokeObjectURL(url);
   });
 
   showStep(current);
